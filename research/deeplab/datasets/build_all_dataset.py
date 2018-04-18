@@ -13,40 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
-"""Converts Cityscapes data to TFRecord file format with Example protos.
-
-The Cityscapes dataset is expected to have the following directory structure:
-
-  + cityscapes
-     - build_cityscapes_data.py (current working directiory).
-     - build_data.py
-     + cityscapesscripts
-       + annotation
-       + evaluation
-       + helpers
-       + preparation
-       + viewer
-     + gtFine
-       + train
-       + val
-       + test
-     + leftImg8bit
-       + train
-       + val
-       + test
-     + tfrecord
-
-This script converts data into sharded data files and save at tfrecord folder.
-
-Note that before running this script, the users should (1) register the
-Cityscapes dataset website at https://www.cityscapes-dataset.com to
-download the dataset, and (2) run the script provided by Cityscapes
-`preparation/createTrainIdLabelImgs.py` to generate the training groundtruth.
-
-Also note that the tensorflow model will be trained with `TrainId' instead
-of `EvalId' used on the evaluation server. Thus, the users need to convert
-the predicted labels to `EvalId` for evaluation on the server. See the
-vis.py for more details.
+"""Converts dataset data to TFRecord file format with Example protos.
 
 The Example proto contains the following fields:
 
@@ -69,41 +36,26 @@ import tensorflow as tf
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('cityscapes_root',
-                           '/data/pier_data/CityScapes',
-                           'Cityscapes dataset root folder.')
+tf.app.flags.DEFINE_string('input_train_list',
+                           './input_list_train_greater1024_shuffled.txt',
+                           'list train images;labels')
+
+tf.app.flags.DEFINE_string('input_val_list',
+                           './input_list_val_test.txt',
+                           'list val images;labels')
+
+tf.app.flags.DEFINE_string('input_test_list',
+                           './input_list_val_test.txt',
+                           'list test images;labels')
 
 tf.app.flags.DEFINE_string(
     'output_dir',
-    './tfrecordCityscapes',
+    './tfrecord',
     'Path to save converted SSTable of TensorFlow examples.')
 
+_NUM_SHARDS = 50
 
-_NUM_SHARDS = 10
-
-# A map from data type to folder name that saves the data.
-_FOLDERS_MAP = {
-    'image': 'leftImg8bit',
-    'label': 'gtFine',
-}
-
-# A map from data type to filename postfix.
-_POSTFIX_MAP = {
-    'image': '_leftImg8bit',
-    'label': '_gtFine_labelTrainIds',
-}
-
-# A map from data type to data format.
-_DATA_FORMAT_MAP = {
-    'image': 'png',
-    'label': 'png',
-}
-
-# Image file pattern.
-_IMAGE_FILENAME_RE = re.compile('(.+)' + _POSTFIX_MAP['image'])
-
-
-def _get_files(data, dataset_split):
+def _get_files(dataset_split):
   """Gets files for the specified data type and dataset split.
 
   Args:
@@ -114,13 +66,23 @@ def _get_files(data, dataset_split):
     A list of sorted file names or None when getting label for
       test set.
   """
-  if data == 'label' and dataset_split == 'test':
-    return None
-  pattern = '*%s.%s' % (_POSTFIX_MAP[data], _DATA_FORMAT_MAP[data])
-  search_files = os.path.join(
-      FLAGS.cityscapes_root, _FOLDERS_MAP[data], dataset_split, '*', pattern)
-  filenames = glob.glob(search_files)
-  return sorted(filenames)
+  if dataset_split == 'train':
+    list_file= FLAGS.input_train_list
+  elif dataset_split == 'val':
+    list_file= FLAGS.input_val_list    
+  elif dataset_split == 'test':
+    list_file= FLAGS.input_test_list
+  images_list =[]
+  labels_list =[]
+  with open(list_file,"r") as f:
+    for line in f:
+      sample,sample_sem = line.strip().split(";")
+      images_list.append(sample.strip())
+      labels_list.append(sample_sem.strip())      
+  
+  if dataset_split == 'test':
+    labels_list = None
+  return images_list, labels_list
 
 
 def _convert_dataset(dataset_split):
@@ -133,13 +95,13 @@ def _convert_dataset(dataset_split):
     RuntimeError: If loaded image and label have different shape, or if the
       image file with specified postfix could not be found.
   """
-  image_files = _get_files('image', dataset_split)
-  label_files = _get_files('label', dataset_split)
+  image_files,label_files = _get_files(dataset_split)
 
   num_images = len(image_files)
   num_per_shard = int(math.ceil(num_images / float(_NUM_SHARDS)))
 
-  image_reader = build_data.ImageReader('png', channels=3)
+  image_reader_png = build_data.ImageReader('png', channels=3)
+  image_reader_jpg = build_data.ImageReader('jpg', channels=3)
   label_reader = build_data.ImageReader('png', channels=1)
 
   for shard_id in range(_NUM_SHARDS):
@@ -153,6 +115,12 @@ def _convert_dataset(dataset_split):
         sys.stdout.write('\r>> Converting image %d/%d shard %d' % (
             i + 1, num_images, shard_id))
         sys.stdout.flush()
+        
+        if image_files[i].endswith(".png"):
+            image_reader= image_reader_png
+        else:
+            image_reader = image_reader_jpg
+        
         # Read the image.
         image_data = tf.gfile.FastGFile(image_files[i], 'rb').read()
         height, width = image_reader.read_image_dims(image_data)
@@ -162,10 +130,7 @@ def _convert_dataset(dataset_split):
         if height != seg_height or width != seg_width:
           raise RuntimeError('Shape mismatched between image and label.')
         # Convert to tf example.
-        re_match = _IMAGE_FILENAME_RE.search(image_files[i])
-        if re_match is None:
-          raise RuntimeError('Invalid image filename: ' + image_files[i])
-        filename = os.path.basename(re_match.group(1))
+        filename = os.path.basename(image_files[i])
         example = build_data.image_seg_to_tfexample(
             image_data, filename, height, width, seg_data)
         tfrecord_writer.write(example.SerializeToString())
@@ -175,9 +140,8 @@ def _convert_dataset(dataset_split):
 
 def main(unused_argv):
   # Only support converting 'train' and 'val' sets for now.
-  for dataset_split in ['train', 'val']:
+  for dataset_split in ['val']:
     _convert_dataset(dataset_split)
-
 
 if __name__ == '__main__':
   tf.app.run()

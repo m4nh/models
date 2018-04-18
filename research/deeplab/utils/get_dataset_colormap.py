@@ -26,13 +26,38 @@ import numpy as np
 # Dataset names.
 _CITYSCAPES = 'cityscapes'
 _PASCAL = 'pascal'
+_CITYSCAPES_MAPILLARY_APOLLOSCAPES = 'cityscapes_mapillary_apolloscapes'
 
 # Max number of entries in the colormap for each dataset.
 _DATASET_MAX_ENTRIES = {
     _CITYSCAPES: 19,
     _PASCAL: 256,
+    _CITYSCAPES_MAPILLARY_APOLLOSCAPES: 19,
 }
 
+def create_cityscapes_mapillary_apolloscapes_colormap():
+  colormap = np.asarray([
+    [119, 11, 32],
+    [150,100,100],
+    [ 70, 70, 70],
+    [  0, 60,100],
+    [  0,  0,142],
+    [190,153,153],
+    [  0,  0,230],
+    [220, 20, 60],
+    [153,153,153],
+    [255,  0,  0],
+    [128, 64,128],
+    [244, 35,232],
+    [ 70,130,180],
+    [107,142, 35],
+    [250,170, 30],
+    [220,220,  0],
+    [  0,  0, 70],
+    [150,120, 90],
+    [102,102,156],
+  ])
+  return colormap
 
 def create_cityscapes_label_colormap():
   """Creates a label colormap used in CITYSCAPES segmentation benchmark.
@@ -41,25 +66,25 @@ def create_cityscapes_label_colormap():
     A Colormap for visualizing segmentation results.
   """
   colormap = np.asarray([
-      [128, 64, 128],
-      [244, 35, 232],
-      [70, 70, 70],
-      [102, 102, 156],
-      [190, 153, 153],
-      [153, 153, 153],
-      [250, 170, 30],
-      [220, 220, 0],
-      [107, 142, 35],
-      [152, 251, 152],
-      [70, 130, 180],
-      [220, 20, 60],
-      [255, 0, 0],
-      [0, 0, 142],
-      [0, 0, 70],
-      [0, 60, 100],
-      [0, 80, 100],
-      [0, 0, 230],
-      [119, 11, 32],
+    [128, 64, 128],
+    [244, 35, 232],
+    [70, 70, 70],
+    [102, 102, 156],
+    [190, 153, 153],
+    [153, 153, 153],
+    [250, 170, 30],
+    [220, 220, 0],
+    [107, 142, 35],
+    [152, 251, 152],
+    [70, 130, 180],
+    [220, 20, 60],
+    [255, 0, 0],
+    [0, 0, 142],
+    [0, 0, 70],
+    [0, 60, 100],
+    [0, 80, 100],
+    [0, 0, 230],
+    [119, 11, 32],
   ])
   return colormap
 
@@ -118,6 +143,8 @@ def create_label_colormap(dataset=_PASCAL):
     return create_pascal_label_colormap()
   elif dataset == _CITYSCAPES:
     return create_cityscapes_label_colormap()
+  elif dataset == _CITYSCAPES_MAPILLARY_APOLLOSCAPES:
+    return create_cityscapes_mapillary_apolloscapes_colormap()
   else:
     raise ValueError('Unsupported dataset.')
 

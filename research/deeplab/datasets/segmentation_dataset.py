@@ -66,6 +66,15 @@ DatasetDescriptor = collections.namedtuple(
     ]
 )
 
+_CITYSCAPES_MAPILLARY_APOLLOSCAPES_INFORMATION = DatasetDescriptor(
+    splits_to_sizes={
+        'train': 42879,
+        'val': 500,
+    },
+    num_classes=19,
+    ignore_label=255,
+)
+
 _CITYSCAPES_INFORMATION = DatasetDescriptor(
     splits_to_sizes={
         'train': 2975,
@@ -89,6 +98,7 @@ _PASCAL_VOC_SEG_INFORMATION = DatasetDescriptor(
 _DATASETS_INFORMATION = {
     'cityscapes': _CITYSCAPES_INFORMATION,
     'pascal_voc_seg': _PASCAL_VOC_SEG_INFORMATION,
+    'cityscapes_mapillary_apolloscapes': _CITYSCAPES_MAPILLARY_APOLLOSCAPES_INFORMATION,
 }
 
 # Default file pattern of TFRecord of TensorFlow Example.
