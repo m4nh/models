@@ -77,7 +77,7 @@ DatasetDescriptor = collections.namedtuple(
 _CITYSCAPES_MAPILLARY_APOLLOSCAPES_INFORMATION = DatasetDescriptor(
     splits_to_sizes={
         'train': 42879,
-        'val': 500,
+        'val': 4544,
     },
     num_classes=19,
     ignore_label=255,
