@@ -160,16 +160,18 @@ def _process_batch(sess, original_images, semantic_predictions, image_names,
     original_image = np.squeeze(original_images[i])
     semantic_prediction = np.squeeze(semantic_predictions[i])
     crop_semantic_prediction = semantic_prediction[:image_height, :image_width]
-
+    
+    image_filename = os.path.splitext(os.path.basename(image_names[i]))[0]
     # Save image.
     save_annotation.save_annotation(
-        original_image, save_dir, _IMAGE_FORMAT % (image_id_offset + i),
+        original_image, save_dir, image_filename,
         add_colormap=False)
-
+    
+    pred_filename= image_filename + "_prediction"
     # Save prediction.
     save_annotation.save_annotation(
-        crop_semantic_prediction, save_dir,
-        _PREDICTION_FORMAT % (image_id_offset + i), add_colormap=True,
+        crop_semantic_prediction, save_dir, pred_filename,
+        add_colormap=True,
         colormap_type=FLAGS.colormap_type)
 
     if FLAGS.also_save_raw_predictions:
