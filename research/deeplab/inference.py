@@ -77,7 +77,7 @@ class inference(object):
         print("Time needed: {:.2f}s".format(time.time()-start))
         if save_path != None:
             save_annotation.save_annotation(semantic_predictions_value, os.path.dirname(save_path), 
-                os.path.basename(save_path), add_colormap=False)
+                os.path.splitext(os.path.basename(save_path))[0], add_colormap=False)
         return semantic_predictions_value
 
     def build_model(self):
@@ -95,11 +95,11 @@ class inference(object):
         self.semantic_predictions = tf.squeeze(predictions[common.OUTPUT_TYPE])
 
 def main(unused_argv):
+    #### load npy rgb ####
     img = np.load("/home/pier/Desktop/aaa.npy")
-    #img =cv2.imread(/home/pier/Desktop/aaa.png")
-    
     with tf.Session() as sess:
         model=inference(sess)
+        #### optional save_path, full path to output ####
         output=model.predict(img)
 
 if __name__ == '__main__':
