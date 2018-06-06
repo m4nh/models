@@ -18,8 +18,9 @@ FLAGS = flags.FLAGS
 
 
 class inference(object):
-    def __init__(self, sess):
+    def __init__(self, sess, crop_size):
         self.sess = sess
+        self.crop_size = crop_size
         self.build_model()
         init_op = [tf.local_variables_initializer(
         ), tf.global_variables_initializer()]
@@ -48,7 +49,7 @@ class inference(object):
         image = tf.expand_dims(tf.to_float(self.image_placeholder), axis=0)
         model_options = common.ModelOptions(
             outputs_to_num_classes={common.OUTPUT_TYPE: FLAGS.num_classes},
-            crop_size=FLAGS.vis_crop_size,
+            crop_size=self.crop_size,
             atrous_rates=FLAGS.atrous_rates,
             output_stride=FLAGS.output_stride)
         predictions = model.predict_labels(
@@ -63,7 +64,7 @@ class inference(object):
         image = tf.expand_dims(tf.to_float(self.image_placeholder), axis=0)
         model_options = common.ModelOptions(
             outputs_to_num_classes={common.OUTPUT_TYPE: FLAGS.num_classes},
-            crop_size=FLAGS.vis_crop_size,
+            crop_size=self.crop_size,
             atrous_rates=FLAGS.atrous_rates,
             output_stride=FLAGS.output_stride)
         self.softmax = model.predict_logits(

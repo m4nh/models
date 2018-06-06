@@ -7,6 +7,7 @@ class DatasetUtils(object):
 
 
 class GenericDataset(object):
+    DATASET_NAME = "generic"
 
     def __init__(self, dataset_name=""):
         self.dataset_name = dataset_name
@@ -39,12 +40,27 @@ class GenericDataset(object):
             m = tf.where(tf.equal(p, i), mi, m)
         return m
 
+    def exportJSON(self, filename):
+        import json
+        classes = {}
+        for i, color in enumerate(self.names):
+            classes[i] = {
+                'color': list(self.colormap[i]),
+                'name': self.names[i]
+            }
+        data = {
+            "name": self.DATASET_NAME,
+            "classes": classes
+        }
+        with open(filename, 'w') as outfile:
+            json.dump(data, outfile, indent=4)
 
-class CityscapeDataset(GenericDataset):
+
+class CityscapesDataset(GenericDataset):
     DATASET_NAME = "cityscapes"
 
     def __init__(self):
-        super(CityscapeDataset, self).__init__(dataset_name=CityscapeDataset.DATASET_NAME)
+        super(CityscapesDataset, self).__init__(dataset_name=CityscapesDataset.DATASET_NAME)
         self.colormap = np.asarray([
             [128, 64, 128],
             [244, 35, 232],

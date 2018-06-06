@@ -13,7 +13,7 @@ from deeplab.utils import input_generator
 from deeplab.utils import save_annotation
 from deeplab.utils import datasets
 import colorUtils
-from deeplab.utils.datasets import CityscapeDataset, DatasetUtils
+from deeplab.utils.datasets import CityscapesDataset, DatasetUtils
 from deeplab.inference import inference
 
 
@@ -44,11 +44,11 @@ flags.DEFINE_multi_integer('vis_crop_size', [2448, 2048],
 
 
 def main(unused_argv):
-
+    print("@"*10, FLAGS.vis_crop_size)
     with tf.Session() as sess:
         model = inference(sess)
 
-        dataset = CityscapeDataset()
+        dataset = CityscapesDataset()
 
         cv2.namedWindow("img", cv2.WINDOW_NORMAL)
 
@@ -56,7 +56,7 @@ def main(unused_argv):
 
         for f in files:
             img = cv2.imread(f)
-            #img = colorUtils.centerCrop(img, 1024, 2048)
+            # img = colorUtils.centerCrop(img, 1024, 2048)
 
             height, width = img.shape[:2]
             img = cv2.resize(img, (int(0.5*width), int(0.5*height)), interpolation=cv2.INTER_CUBIC)
@@ -71,5 +71,4 @@ def main(unused_argv):
 
 
 if __name__ == '__main__':
-    print("@"*10, FLAGS.vis_crop_size)
     tf.app.run()
