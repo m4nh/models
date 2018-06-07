@@ -95,8 +95,6 @@ def main(unused_argv):
     global inference_network
     with tf.Session() as sess:
 
-        cv2.namedWindow("img", cv2.WINDOW_NORMAL)
-
         input_path = "/home/daniele/data/datasets/siteco/DucatiEXP/Images_Ladybug0_0/"
         output_path = "/home/daniele/data/datasets/siteco/DucatiEXP/Segmentations/Images_Ladybug0_0_reduced/"
 
@@ -123,35 +121,6 @@ def main(unused_argv):
             connection, address = socket.accept()
             server = postcard.PostcardServer(
                 connection, address, data_callback=semanticCallback)
-
-        # for f in files:
-        #     img = cv2.imread(f)
-        #     # img = colorUtils.centerCrop(img, 1024, 2048)
-
-            # img, h, w = rescaleImage(img, rescale)
-            # # height, width = img.shape[:2]
-            # # img = cv2.resize(img, (int(0.5*width), int(0.5*height)), interpolation=cv2.INTER_CUBIC)
-
-            # output, logits = model.predict(img)
-
-        #     outcolor = dataset.buildColorImageNumpy(output, channel_order=DatasetUtils.COLOR_CHANNEL_ORDER_BGR)
-
-        #     out = np.hstack((img, outcolor))
-        #     cv2.imshow("img", out)
-        #     cv2.waitKey(1)
-        #     print("LOGIT SHAPES: ", logits.shape)
-
-        #     outimg, h, w = rescaleImage(outcolor, 1/rescale)
-        #     output_r, h, w = rescaleImage(output, 1/rescale)
-
-        #     image_name = os.path.splitext(os.path.basename(f))[0]
-        #     colored_image_name = image_name+"_colorsegmentation.jpg"
-        #     labels_image_name = image_name+"_segmentation.png"
-        #     logits_name = image_name+"_logits.npy"
-
-        #     cv2.imwrite(os.path.join(output_path, colored_image_name), outimg)
-        #     cv2.imwrite(os.path.join(output_path, labels_image_name), output_r)
-        #     #np.save(os.path.join(output_path, logits_name), logits)
 
 
 if __name__ == '__main__':
