@@ -95,24 +95,9 @@ def main(unused_argv):
     global inference_network
     with tf.Session() as sess:
 
-        input_path = "/home/daniele/data/datasets/siteco/DucatiEXP/Images_Ladybug0_0/"
-        output_path = "/home/daniele/data/datasets/siteco/DucatiEXP/Segmentations/Images_Ladybug0_0_reduced/"
-
-        if not os.path.exists(output_path):
-            os.makedirs(output_path)
-
-        files = sorted(glob.glob(os.path.join(input_path, "*.jpg")))
-
-        sample_image = cv2.imread(files[0])
-
         h, w = FLAGS.vis_crop_size
         h = int(rescale*h)
         w = int(rescale*w)
-
-        #flags.vis_crop_size = [h, w]
-        # print(sample_image.shape)
-        # import sys
-        # sys.exit(0)
 
         inference_network = inference(sess, crop_size=[h, w])
 
