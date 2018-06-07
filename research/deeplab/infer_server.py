@@ -74,6 +74,7 @@ def semanticCallback(header, input_image):
     output, logits = inference_network.predict(img)
 
     if header.command == "segmentation_deeplab":
+        output = output.astype(np.uint8)
         output_rescaled, h, w = rescaleImage(output, 1/rescale)
         return "ok", output_rescaled
     elif header.command == "segmentation_deeplab_color":
@@ -106,7 +107,9 @@ def main(unused_argv):
 
         sample_image = cv2.imread(files[0])
 
-        sample_image, h, w = rescaleImage(sample_image, rescale)
+        h, w = FLAGS.vis_crop_size
+        h = int(rescale*h)
+        w = int(rescale*w)
 
         #flags.vis_crop_size = [h, w]
         # print(sample_image.shape)
