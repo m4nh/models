@@ -58,9 +58,9 @@ def main(unused_argv):
 
         cv2.namedWindow("img", cv2.WINDOW_NORMAL)
 
-        rescale = 0.5
-        input_path = "/home/daniele/data/datasets/siteco/DucatiEXP/Images_Ladybug0_5/"
-        output_path = "/home/daniele/data/datasets/siteco/DucatiEXP/Segmentations/Images_Ladybug0_5_reduced/"
+        rescale = 1
+        input_path = "/home/daniele/Desktop/temp/miao"
+        output_path = "/home/daniele/Desktop/temp/miao/results"
 
         if not os.path.exists(output_path):
             os.makedirs(output_path)
