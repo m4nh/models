@@ -1,0 +1,2 @@
+set PYTHONPATH=%PYTHONPATH%;%cd%\..
+set PYTHONPATH=%PYTHONPATH%;%cd%\..\slim
