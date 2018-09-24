@@ -73,14 +73,14 @@ def semanticCallback(header, input_image):
 
     output, logits = inference_network.predict(img)
 
-    if header.command == "segmentation_deeplab":
+    if header.command == "segmentation_deeplab" or header.command == "Jpeg":
         output = output.astype(np.uint8)
         output_rescaled, h, w = rescaleImage(output, 1/rescale)
-        return "ok", output_rescaled
+        return "ok", postcard.PostcardImage(output_rescaled, format='png')
     elif header.command == "segmentation_deeplab_color":
         outcolor = dataset.buildColorImageNumpy(output, channel_order=DatasetUtils.COLOR_CHANNEL_ORDER_BGR)
         outcolor_rescaled, h, w = rescaleImage(outcolor, 1/rescale)
-        return "ok", outcolor_rescaled
+        return "ok", postcard.PostcardImage(outcolor_rescaled, format='png')
     else:
         return "error.INVALID_COMMAND", None
 
